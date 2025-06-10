@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETHMORA - Learn Local Languages</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: white;
+      color: black;
+    }
+
+    .main-logo {
+      max-width: 180px;
+      margin-bottom: 20px;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0% { transform: translatey(0px); }
+      50% { transform: translatey(-10px); }
+      100% { transform: translatey(0px); }
+    }
+
+    .main-section {
+      min-height: 100vh;
+      background: linear-gradient(145deg, teal 30%, gold 70%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .form-container {
+      background-color: white;
+      border-radius: 15px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    .btn-teal {
+      background-color: teal;
+      color: white;
+    }
+
+    .btn-gold {
+      background-color: gold;
+      color: black;
+    }
+
+    .brand-name {
+      font-family: 'Brush Script MT', cursive;
+      font-size: 2.5rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .tagline {
+      font-size: 0.9rem;
+      font-weight: 300;
+      letter-spacing: 1px;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    .nav-tabs .nav-link.active {
+      background-color: gold;
+      color: black;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="main-section">
+    <img src="PHOTO-2025-05-28-23-16-51.jpg" alt="Ethmora Logo" class="main-logo">
+    <div class="brand-name">ETHMORA</div>
+    <div class="tagline">...building bridges, not a dictionary</div>
+
+    <div class="form-container mt-4">
+      <ul class="nav nav-tabs mb-3" id="authTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="register-tab" data-bs-toggle="tab" data-bs-target="#register" type="button" role="tab">Register</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="login-tab" data-bs-toggle="tab" data-bs-target="#login" type="button" role="tab">Login</button>
+        </li>
+      </ul>
+      <div class="tab-content" id="authTabsContent">
+        <div class="tab-pane fade show active" id="register" role="tabpanel">
+          <form onsubmit="handleSubmit(event, 'register')">
+            <div class="mb-3">
+              <label for="regName" class="form-label">First Name</label>
+              <input type="text" name="firstname" class="form-control" id="regfname" required>
+            </div>
+            <div class="mb-3">
+              <label for="regName" class="form-label">Last Name</label>
+              <input type="text" name="lastname" class="form-control" id="reglname" required>
+            </div>
+            <div class="mb-3">
+              <label for="regEmail" class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" id="regemail" required>
+            </div>
+            <div class="mb-3">
+              <label for="regPassword" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="regpassword" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Register</button>
+          </form>
+          <div id="registerMessage"></div>
+        </div>
+
+        <div class="tab-pane fade" id="login" role="tabpanel">
+          <form onsubmit="handleSubmit(event, 'login')">
+            <div class="mb-3">
+              <label for="loginEmail" class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" id="loginEmail" required>
+            </div>
+            <div class="mb-3">
+              <label for="loginPassword" class="form-label">Password</label>
+              <input type="password" name="password" class="form-control" id="loginPassword" required>
+            </div>
+            <button type="submit" class="btn btn-gold w-100">Login</button>
+            <div id="loginMessage"></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    function handleSubmit(event, type) {
+      event.preventDefault();
+      
+      if (type === "login"){
+
+        let email = document.getElementById("loginEmail").value;
+        let pass = document.getElementById("loginPassword").value;
+        let loginmessage = document.getElementById("loginMessage");
+        fetch(`/api-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mail: email, pass: pass })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.message === "success"){
+            if(data.role === "student"){
+                window.location.href = '/studentPage.html';
+            }else if(data.role === "teacher"){
+                window.location.href = '/teacherPage.html';
+            }else{
+                window.location.href = '/adminPage.html';
+            }
+          }else{
+            console.log(`${data.message}`);
+            loginmessage.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Failed to perform login action.");
+        });
+
+    }else{
+        let registerMessage = document.getElementById("registerMessage");
+        let email = document.getElementById("regemail").value;
+        let firstname = document.getElementById("regfname").value;
+        let lastname = document.getElementById("reglname").value;
+        let password = document.getElementById("regpassword").value;
+
+        fetch(`/api-register`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mail:email, fname:firstname, lname:lastname, pass:password})
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.message === "success"){
+            registerMessage.innerHTML = `<div class="alert alert-success">You were registered successfuly, you can now login!</div>`
+            
+          }else{
+            registerMessage.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          alert("Failed to perform register action.");
+        });
+
+      }
+    }
+
+
+  </script>
+</body>
+
+</html>
